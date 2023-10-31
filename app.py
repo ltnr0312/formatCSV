@@ -1,20 +1,19 @@
 # Databricks notebook source
-# AI-Assisted
-
 import pandas as pd
 import numpy as np
 import chardet
+import streamlit as st
 
 class Conversor:
-    def __init__(self, uri):
-        self.uri = uri
+    def __init__(self, file):
+        self.file = file
 
     def preprocess_csv(self):
-        with open(self.uri, 'rb') as csv_file:
+        with open(self.file, 'rb') as csv_file:
             result = chardet.detect(csv_file.read())
 
         names = np.arange(0, 16)
-        df = pd.read_csv(self.uri, header=6, encoding=result['encoding'], names=names)
+        df = pd.read_csv(self.file, header=6, encoding=result['encoding'], names=names)
         mylist = df.iloc[-1:].values.tolist().pop(0)
         df.columns = [str(i) for i in mylist]
         df = df.iloc[:-1]
@@ -40,3 +39,23 @@ class Conversor:
             self.df.to_excel(output_filename, index=True)
         else:
             raise ValueError("Invalid output_format. Valid options are 'csv' or 'excel'.")
+
+
+def main():
+    st.title("CSV Conversor")
+
+    file = st.file_uploader("Upload your CSV file")
+
+    if file:
+        conversor = Conversor(file)
+        conversor.preprocess_csv()
+
+        st.dataframe(conversor.get_dataframe())
+
+        output_format = st.selectbox("Select output format", ("csv", "excel"))
+
+        if st.button("Download"):
+            conversor.save_converted(output_format, f"output.{output_format}")
+
+if __name__ == "__main__":
+    main()
