@@ -4,6 +4,7 @@ import numpy as np
 import streamlit as st
 
 class Conversor:
+
     def __init__(self, file):
         self.file = file
 
@@ -28,31 +29,24 @@ class Conversor:
     def get_dataframe(self):
         return self.df
 
-    def save_converted(self, output_format, output_filename):
-        if output_format == "csv":
-            self.df.to_csv(output_filename, index=True)
-        elif output_format == "excel":
-            with pd.ExcelWriter("output.xlsx") as writer:
-                self.df.to_excel(writer, index=True)
-        else:
-            raise ValueError("Invalid output_format. Valid options are 'csv' or 'excel'.")
-
 
 def main():
-    st.title("CSV Conversor")
+    st.title("Formartar arquivo de CSV")
 
-    file = st.file_uploader("Upload your CSV file")
+    file = st.file_uploader("Carregue o seu arquivo CSV")
 
     if file:
         conversor = Conversor(file)
         conversor.preprocess_csv()
 
-        st.dataframe(conversor.get_dataframe())
+        d = conversor.get_dataframe()
 
-        output_format = st.selectbox("Select output format", ("csv", "excel"))
+        st.dataframe(conversor.get_dataframe())       
 
-        if st.button("Download"):
-            conversor.save_converted(output_format, f"output.{output_format}")
+        st.download_button("Façar o download do arquivo no formato csv",
+                            d.to_csv(),
+                            file_name="csv_converted.csv",
+                            mime="text/csv")
 
 if __name__ == "__main__":
     main()
