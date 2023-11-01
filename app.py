@@ -7,10 +7,7 @@ class Conversor:
     def __init__(self, file):
         self.file = file
 
-    # def preprocess_csv(self):
-    #     with open(self.file, 'rb') as csv_file:
-    #         result = chardet.detect(csv_file.read())
-
+    def preprocess_csv(self):
         names = np.arange(0, 16)
         df = pd.read_csv(self.file, header=6, encoding="iso-8859-1", names=names)
         mylist = df.iloc[-1:].values.tolist().pop(0)
@@ -35,7 +32,8 @@ class Conversor:
         if output_format == "csv":
             self.df.to_csv(output_filename, index=True)
         elif output_format == "excel":
-            self.df.to_excel(output_filename, index=True)
+            with pd.ExcelWriter("output.xlsx") as writer:
+                self.df.to_excel(writer, index=True)
         else:
             raise ValueError("Invalid output_format. Valid options are 'csv' or 'excel'.")
 
@@ -47,7 +45,7 @@ def main():
 
     if file:
         conversor = Conversor(file)
-        # conversor.preprocess_csv()
+        conversor.preprocess_csv()
 
         st.dataframe(conversor.get_dataframe())
 
