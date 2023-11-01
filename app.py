@@ -7,12 +7,12 @@ class Conversor:
     def __init__(self, file):
         self.file = file
 
-    def preprocess_csv(self):
-        with open(self.file, 'rb') as csv_file:
-            result = chardet.detect(csv_file.read())
+    # def preprocess_csv(self):
+    #     with open(self.file, 'rb') as csv_file:
+    #         result = chardet.detect(csv_file.read())
 
         names = np.arange(0, 16)
-        df = pd.read_csv(self.file, header=6, encoding=result['encoding'], names=names)
+        df = pd.read_csv(self.file, header=6, encoding="iso-8859-1", names=names)
         mylist = df.iloc[-1:].values.tolist().pop(0)
         df.columns = [str(i) for i in mylist]
         df = df.iloc[:-1]
