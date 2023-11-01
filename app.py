@@ -1,7 +1,6 @@
 # Databricks notebook source
 import pandas as pd
 import numpy as np
-import chardet
 import streamlit as st
 
 class Conversor:
