@@ -2,10 +2,6 @@
 from conversor import Conversor
 import tkinter as tk
 
-# Create a tkinter root window (hidden) for file dialog
-root = tk.Tk()
-root.withdraw()
-
 # Initialize a Conversor object
 conversor_instance = Conversor()
 

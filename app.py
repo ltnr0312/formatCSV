@@ -47,7 +47,7 @@ def main():
 
     if file:
         conversor = Conversor(file)
-        conversor.preprocess_csv()
+        # conversor.preprocess_csv()
 
         st.dataframe(conversor.get_dataframe())
 
