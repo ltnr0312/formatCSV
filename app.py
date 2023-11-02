@@ -217,7 +217,7 @@ class Conversor:
         return self.formatted_df
 
 def main():
-    st.title("Formartar arquivo de CSV")
+    st.title("Formatar arquivo de CSV")
 
     file = st.file_uploader("Carregue o seu arquivo CSV")
 
@@ -232,7 +232,7 @@ def main():
 
         # st.dataframe(conversor.get_dataframe())       
 
-        st.download_button("Façar o download do arquivo no formato csv",
+        st.download_button("Faça o download do arquivo no formato csv",
                             d.to_csv(),
                             file_name="csv_converted.csv",
                             mime="text/csv")
