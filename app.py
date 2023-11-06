@@ -2,6 +2,8 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
+import matplotlib.pyplot as plt
+from io import BytesIO
 
 class Conversor:    
     def __init__(self, file):
@@ -193,6 +195,8 @@ class Conversor:
                 color_df.iloc[i, 13] = "#D2691E"
                 break
 
+            self.color_df = color_df
+
         def apply_colors(_):
             styled_df = pd.DataFrame('', index=df.index, columns=df.columns)
             for row in range(color_df.shape[0]):
@@ -215,6 +219,60 @@ class Conversor:
 
     def get_formatted_dataframe(self):
         return self.formatted_df
+    
+    def get_color_counts(self):
+        color_counts = self.color_df.stack().value_counts()
+        grouped_counts = color_counts.groupby(color_counts.index).sum().sort_values(ascending=False)        
+        return grouped_counts
+
+    def get_color_counts_renamed(self):
+        color_counts = self.color_df.stack().value_counts()
+        grouped_counts = color_counts.groupby(color_counts.index).sum().sort_values(ascending=False)
+        colors, counts = zip(*color_counts.items())
+        color_names = {
+                        'red': 'Carga Crítica',
+                        'green': 'Operação Adequada',
+                        '#D2691E': 'Alto RPM x Baixa Carga',
+                        'yellow': 'Carga Excessiva'
+                    }
+        updated_labels = [color_names[color] for color in colors]
+        grouped_counts.index = updated_labels         
+        return grouped_counts
+
+def create_bar_graph(color_counts):
+
+    # Update color names using the requested dictionary
+    color_names = {
+        'red': 'Carga Crítica',
+        'green': 'Operação Adequada',
+        '#D2691E': 'Alto RPM x Baixa Carga',
+        'yellow': 'Carga Excessiva'
+    }
+
+    fig, ax = plt.subplots()
+
+    colors, counts = zip(*color_counts.items())
+
+    ax.bar(colors, counts, color=colors)
+    ax.bar_label(ax.containers[0])
+    ax.set_xlabel("Regime de Operação", labelpad=20)
+    ax.set_ylabel("Quantidade de Operações")
+    ax.set_title("Regimes de Operação x Quantidade", pad=20)
+
+
+    # Create a list of updated_labels using color_names dictionary
+    updated_labels = [color_names[color] for color in colors]
+
+    # Set x-axis labels rotation to 45 degrees
+    ax.set_xticklabels(updated_labels, rotation=45)
+
+    # Adjust the plot layout
+    fig.tight_layout()
+
+    buf = BytesIO()
+    fig.savefig(buf, format='png', dpi=100)
+    buf.seek(0)
+    return buf
 
 def main():
     st.title("Formatar arquivo de CSV")
@@ -230,7 +288,20 @@ def main():
 
         st.write(conversor.get_formatted_dataframe())
 
-        # st.dataframe(conversor.get_dataframe())       
+        color_counts = conversor.get_color_counts()
+        color_counts_renamed = conversor.get_color_counts_renamed()
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.subheader("Tabela")
+            st.dataframe(color_counts_renamed)
+
+        with col2:
+            st.subheader("Gráfico")
+            graph_buf = create_bar_graph(color_counts)
+            st.image(graph_buf, caption="Regime de Operação x Quantidade", use_column_width=True, output_format='PNG')
+
 
         st.download_button("Faça o download do arquivo no formato csv",
                             d.to_csv(),
